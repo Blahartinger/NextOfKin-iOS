@@ -1,6 +1,6 @@
 # NextOfKin
 
-[![CI Status](http://img.shields.io/travis/Bryan Lahartinger/NextOfKin.svg?style=flat)](https://travis-ci.org/Bryan Lahartinger/NextOfKin)
+[![CI Status](http://img.shields.io/travis/Blahartinger/NextOfKin-iOS.svg?style=flat)](https://travis-ci.org/Blahartinger/NextOfKin-iOS)
 [![Version](https://img.shields.io/cocoapods/v/NextOfKin.svg?style=flat)](http://cocoapods.org/pods/NextOfKin)
 [![License](https://img.shields.io/cocoapods/l/NextOfKin.svg?style=flat)](http://cocoapods.org/pods/NextOfKin)
 [![Platform](https://img.shields.io/cocoapods/p/NextOfKin.svg?style=flat)](http://cocoapods.org/pods/NextOfKin)
