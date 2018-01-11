@@ -38,8 +38,8 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
     private let kinOperationScheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "com.kin.KinSdkController.KinOperationQueue")
     private var kinClient: KinClient!
     
-    init(keychain: Keychain = Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName())),
-         defaults: UserDefaults = UserDefaults.standard) {
+    public init(keychain: Keychain = Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName())),
+                defaults: UserDefaults = UserDefaults.standard) {
         self.keychain = keychain
         self.defaults = defaults
         
