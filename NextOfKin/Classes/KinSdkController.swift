@@ -146,7 +146,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
                 }
                 guard let account = accountOptional else {
                     return this.getOrCreateAccount()
-                        .do(onNext: { (account) in
+                        .do(onSuccess: { (account) in
                             this.account.onNext(account)
                         })
                 }
@@ -185,7 +185,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
     }
     
     public func clearWallet() -> Completable {
-        return getClient().do(onNext: { [weak self] (client) in
+        return getClient().do(onSuccess: { [weak self] (client) in
             try client.deleteKeystore()
             guard let this = self else {
                 return
