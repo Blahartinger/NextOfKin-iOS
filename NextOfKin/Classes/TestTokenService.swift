@@ -1,6 +1,6 @@
 //
 //  TestTokenService.swift
-//  CashCow
+//  NextOfKin
 //
 //  Created by Bryan Lahartinger on 2017-12-13.
 //  Copyright © 2017 Bryan Lahartinger. All rights reserved.
