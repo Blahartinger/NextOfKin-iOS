@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.platform = :ios, '8.0'
 
-  s.dependency 'RxSwift',    '~> 4.0'
+  s.dependency 'RxSwift', '~> 3.4.0'
   s.dependency 'KeychainAccess', '~> 3.1.0'
   s.dependency 'KinSDK', '~> 0.3.9'
 end

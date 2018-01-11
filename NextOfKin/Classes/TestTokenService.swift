@@ -29,6 +29,6 @@ public class TestTokenService {
         }
             
         task.resume()
-        return subject.asObserver().ignoreElements()
+        return subject.asCompletableIgnoringEvents()
     }
 }

@@ -146,7 +146,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
                 }
                 guard let account = accountOptional else {
                     return this.getOrCreateAccount()
-                        .do(onSuccess: { (account) in
+                        .do(onNext: { (account) in
                             this.account.onNext(account)
                         })
                 }
@@ -185,14 +185,14 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
     }
     
     public func clearWallet() -> Completable {
-        return getClient().do(onSuccess: { [weak self] (client) in
+        return getClient().do(onNext: { [weak self] (client) in
             try client.deleteKeystore()
             guard let this = self else {
                 return
             }
             this.account.onNext(nil)
         })
-        .asObservable().ignoreElements()
+        .asObservable().asCompletableIgnoringEvents()
         //^ Make a completable, we don't care about the value
         //  and RxSwift can't map to a Single directly :/
     }

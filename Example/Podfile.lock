@@ -4,10 +4,10 @@ PODS:
   - NextOfKin (0.1.0):
     - KeychainAccess (~> 3.1.0)
     - KinSDK (~> 0.3.9)
-    - RxSwift (~> 4.0)
+    - RxSwift (~> 3.4.0)
   - Nimble (7.0.3)
   - Quick (1.2.0)
-  - RxSwift (4.1.1)
+  - RxSwift (3.4.1)
 
 DEPENDENCIES:
   - NextOfKin (from `../`)
@@ -21,10 +21,10 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   KeychainAccess: 94c5540b32eabf7bc32bfb976a268e8ea05fd6da
   KinSDK: 6400a314bd5ee5dea18d8d988754675e14300547
-  NextOfKin: 60e7f4dddaa1a82dba643b437bfaa3ed6bb7c849
+  NextOfKin: bec23ac6bec7c68f24891d06f40574e83ac724eb
   Nimble: 7f5a9c447a33002645a071bddafbfb24ea70e0ac
   Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
-  RxSwift: c6e3b1c7b325c7d121cd4327e9d98b7ed746b570
+  RxSwift: 656f8fbeca5bc372121a72d9ebdd3cd3bc0ffade
 
 PODFILE CHECKSUM: 9a95902abebb8bc6f6ab347508d4e228e3c21b3d
 
