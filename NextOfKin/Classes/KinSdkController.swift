@@ -21,6 +21,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
         static let kinPasskeyKey: String = "com.kik.kin.passkey"
         static let keystoreKeyLength: UInt = 128
         static let configKinProviderUrl = "kin-provider-url"
+        static let isKinWalletRestricted = "isKinWalletRestricted"
         static let providerUrlOptions = ["http://mainnet.rounds.video:8545/",
                                          "http://testnet.rounds.video:8545/",
                                          "https://mainnet.infura.io/"]
@@ -37,9 +38,13 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
     private let disposeBag = DisposeBag()
     private let kinOperationScheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "com.kin.KinSdkController.KinOperationQueue")
     private var kinClient: KinClient!
-    
-    public init(keychain: Keychain = Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName())),
-                defaults: UserDefaults = UserDefaults.standard) {
+
+    public convenience init() {
+        self.init(keychain: Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName())),
+                  defaults: UserDefaults.standard)
+    }
+
+    public required init(keychain: Keychain, defaults: UserDefaults) {
         self.keychain = keychain
         self.defaults = defaults
         
@@ -54,16 +59,32 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
             }
             this.account.onNext(client.account);
         })
-        .disposed(by: self.disposeBag)
+            .disposed(by: self.disposeBag)
     }
     
-    private var providerUrl: String {
+    public var providerUrl: String {
         guard let providerUrl: String = defaults.string(forKey: Constants.configKinProviderUrl) else {
             return "nok://undefined"
         }
         return providerUrl
     }
-    
+
+    /**
+     * @return If the provided URL is approved to access the Kin SDK
+     */
+    public func isAllowedAccess(with url: URL) -> Bool {
+        guard defaults.bool(forKey: Constants.isKinWalletRestricted) else { // TODO: Should "restricted" not be the default case?
+            // allow all domains to pass the check
+            return true
+        }
+
+        // only allow the current wallet site, served over HTTPS to access restricted plugin methods
+        let isValidHost = url.host == providerUrl
+        let isValidScheme = url.scheme?.lowercased() == "https"
+
+        return isValidHost && isValidScheme
+    }
+
     /**
      * @return A service provider which connects to the chosen provider URL
      * on the correct protocol
