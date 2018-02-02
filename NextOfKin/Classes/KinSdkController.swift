@@ -39,18 +39,23 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
     private let kinOperationScheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "com.kin.KinSdkController.KinOperationQueue")
     private var kinClient: KinClient!
 
-    public convenience init() {
+    public convenience init(usingTestNet: Bool = true) {
         self.init(keychain: Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName())),
-                  defaults: UserDefaults.standard)
+                  defaults: UserDefaults.standard,
+                  usingTestNet: usingTestNet)
     }
 
-    public required init(keychain: Keychain, defaults: UserDefaults) {
+    public required init(keychain: Keychain, defaults: UserDefaults, usingTestNet: Bool = true) {
         self.keychain = keychain
         self.defaults = defaults
         
-        // MARK: forced on test network
-        self.defaults.set(Constants.providerUrlOptions[1],
-                          forKey: Constants.configKinProviderUrl)
+        if usingTestNet {
+            self.defaults.set(Constants.providerUrlOptions[1],
+                              forKey: Constants.configKinProviderUrl)
+        } else {
+            self.defaults.set(Constants.providerUrlOptions[0],
+                              forKey: Constants.configKinProviderUrl)
+        }
         
         // load initial existence of an account
         getClient().subscribe(onSuccess: { [weak self] (client) in
