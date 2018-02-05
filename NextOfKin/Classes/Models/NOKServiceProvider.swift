@@ -10,8 +10,8 @@ import Foundation
 import KinSDK
 
 public class NOKServiceProvider: ServiceProvider {
+
     public var url: URL
-    
     public var networkId: NetworkId
     
     /**
@@ -22,15 +22,7 @@ public class NOKServiceProvider: ServiceProvider {
         self.networkId = networkId
     }
     
-    public func getProviderUrl() -> URL {
-        return url;
-    }
-    
-    public func getNetworkId() -> NetworkId {
-        return networkId;
-    }
-    
     public func isMainNet() -> Bool {
-        return networkId == NetworkId.mainNet;
+        return networkId == NetworkId.mainNet
     }
 }

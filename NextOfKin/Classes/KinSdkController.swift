@@ -12,6 +12,8 @@ import KeychainAccess
 import KinSDK
 
 public class KinSdkController: KinControllerType, KinRespositoryType {
+
+    typealias ProviderTuple = (url: String, network: NetworkId)
     
     enum NOKError : Error {
         case kinSdkControllerDeallocated
@@ -20,41 +22,34 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
     private struct Constants {
         static let kinPasskeyKey: String = "com.kik.kin.passkey"
         static let keystoreKeyLength: UInt = 128
-        static let configKinProviderUrl = "kin-provider-url"
-        static let isKinWalletRestricted = "isKinWalletRestricted"
-        static let providerUrlOptions = ["http://mainnet.rounds.video:8545/",
-                                         "http://testnet.rounds.video:8545/",
-                                         "https://mainnet.infura.io/"]
-        static let providerUrlNetworks = [NetworkId.mainNet,
-                                          NetworkId.ropsten,
-                                          NetworkId.truffle]
+
+        static let mainNet: ProviderTuple = ("http://mainnet.rounds.video:8545/", .mainNet)
+        static let testNet: ProviderTuple = ("http://testnet.rounds.video:8545/", .ropsten)
+        static let truffleNet: ProviderTuple = ("https://mainnet.infura.io/", .truffle)
     }
-    
-    // Injectables
+
+    private lazy var account = BehaviorSubject<KinAccount?>(value: nil)
+    private lazy var disposeBag = DisposeBag()
+    private lazy var kinOperationScheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "com.kin.KinSdkController.KinOperationQueue")
+
     private let keychain: Keychain
-    private let defaults: UserDefaults
-    
-    private let account = BehaviorSubject<KinAccount?>(value: nil)
-    private let disposeBag = DisposeBag()
-    private let kinOperationScheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "com.kin.KinSdkController.KinOperationQueue")
-    private var kinClient: KinClient!
+    private let serviceProvider: NOKServiceProvider
 
     public convenience init(usingTestNet: Bool = true) {
-        self.init(keychain: Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName())),
-                  defaults: UserDefaults.standard,
+        let keychain = Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName()))
+        self.init(keychain: keychain,
                   usingTestNet: usingTestNet)
     }
 
-    public required init(keychain: Keychain, defaults: UserDefaults, usingTestNet: Bool = true) {
+    public required init(keychain: Keychain, usingTestNet: Bool = true) {
         self.keychain = keychain
-        self.defaults = defaults
         
         if usingTestNet {
-            self.defaults.set(Constants.providerUrlOptions[1],
-                              forKey: Constants.configKinProviderUrl)
+            self.serviceProvider = NOKServiceProvider(urlString: Constants.testNet.url,
+                                                      networkId: Constants.testNet.network)
         } else {
-            self.defaults.set(Constants.providerUrlOptions[0],
-                              forKey: Constants.configKinProviderUrl)
+            self.serviceProvider = NOKServiceProvider(urlString: Constants.mainNet.url,
+                                                      networkId: Constants.mainNet.network)
         }
         
         // load initial existence of an account
@@ -63,25 +58,26 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
                 return
             }
             this.account.onNext(client.account);
-        })
-            .disposed(by: self.disposeBag)
+        }).disposed(by: self.disposeBag)
     }
-    
+
+    /**
+     * @return The current provider Url used to access the kin network
+     */
     public var providerUrl: String {
-        guard let providerUrl: String = defaults.string(forKey: Constants.configKinProviderUrl) else {
-            return "nok://undefined"
-        }
-        return providerUrl
+        return serviceProvider.url.description
     }
 
     /**
      * @return If the provided URL is approved to access the Kin SDK
      */
     public func isAllowedAccess(with url: URL) -> Bool {
-        guard defaults.bool(forKey: Constants.isKinWalletRestricted) else { // TODO: Should "restricted" not be the default case?
-            // allow all domains to pass the check
-            return true
-        }
+
+        // Where was this being set anyways?
+//        guard defaults.bool(forKey: Constants.isKinWalletRestricted) else { // TODO: Should "restricted" not be the default case?
+//            // allow all domains to pass the check
+//            return true
+//        }
 
         // only allow the current wallet site, served over HTTPS to access restricted plugin methods
         let isValidHost = url.host == providerUrl
@@ -90,22 +86,6 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
         return isValidHost && isValidScheme
     }
 
-    /**
-     * @return A service provider which connects to the chosen provider URL
-     * on the correct protocol
-     */
-    private func getServiceProvider() -> ServiceProvider {
-        
-        var networkId = NetworkId.ropsten
-        for i in 0..<Constants.providerUrlOptions.count {
-            if Constants.providerUrlOptions[i] == providerUrl {
-                networkId = Constants.providerUrlNetworks[i];
-            }
-        }
-        
-        return NOKServiceProvider(urlString: providerUrl, networkId: networkId)
-    }
-    
     /**
      * @return A stored passkey or generates a new, random passkey for single-session storage
      *
@@ -133,8 +113,8 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
                 return Disposables.create()
             }
             do {
-                this.kinClient = try KinClient(provider: this.getServiceProvider())
-                single(.success(this.kinClient))
+                let kinClient = try KinClient(provider: this.serviceProvider)
+                single(.success(kinClient))
             } catch {
                 single(.error(error))
             }
