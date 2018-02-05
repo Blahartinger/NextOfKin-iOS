@@ -26,8 +26,6 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
         static let mainNet: ProviderTuple = ("http://mainnet.rounds.video:8545/", .mainNet)
         static let testNet: ProviderTuple = ("http://testnet.rounds.video:8545/", .ropsten)
         static let truffleNet: ProviderTuple = ("https://mainnet.infura.io/", .truffle)
-
-        static let validAccessUrls = ["kinpreview.kik.com", "web-wallet-dev.herokuapp.com"]
     }
 
     private lazy var account = BehaviorSubject<KinAccount?>(value: nil)
@@ -68,24 +66,6 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
      */
     public var providerUrl: String {
         return serviceProvider.url.description
-    }
-
-    /**
-     * @return If the provided URL is approved to access the Kin SDK
-     */
-    public func isAllowedAccess(with url: URL) -> Bool {
-
-        // Where was this being set anyways?
-//        guard defaults.bool(forKey: Constants.isKinWalletRestricted) else { // TODO: Should "restricted" not be the default case?
-//            // allow all domains to pass the check
-//            return true
-//        }
-
-        // only allow the current wallet site, served over HTTPS to access restricted plugin methods
-        let isValidHost = Constants.validAccessUrls.contains(url.host ?? "")
-        let isValidScheme = url.scheme?.lowercased() == "https"
-
-        return isValidHost && isValidScheme
     }
 
     /**
