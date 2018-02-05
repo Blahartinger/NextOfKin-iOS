@@ -25,7 +25,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
 
         static let mainNet: ProviderTuple = ("http://mainnet.rounds.video:8545/", .mainNet)
         static let testNet: ProviderTuple = ("http://testnet.rounds.video:8545/", .ropsten)
-        static let truffleNet: ProviderTuple = ("https://mainnet.infura.io/", .truffle)
+        static let truffleNet: ProviderTuple = ("https://mainnet.infura.io/", .truffle) // TODO: James - switch local tests to this
     }
 
     private lazy var account = BehaviorSubject<KinAccount?>(value: nil)
