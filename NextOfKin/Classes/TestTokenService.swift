@@ -11,7 +11,7 @@ import RxSwift
 
 /**
  * This is used to fill a ropsten network wallet with 10K test ERC20 tokens.
- * You **MUST** be on the ropsten test network of this will fail.
+ * You **MUST** be on the ropsten test network or this will fail.
  */
 public class TestTokenService {
     public func giveMeTokensFor(publicKey: String) -> Completable {

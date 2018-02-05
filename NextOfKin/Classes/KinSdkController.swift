@@ -26,6 +26,8 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
         static let mainNet: ProviderTuple = ("http://mainnet.rounds.video:8545/", .mainNet)
         static let testNet: ProviderTuple = ("http://testnet.rounds.video:8545/", .ropsten)
         static let truffleNet: ProviderTuple = ("https://mainnet.infura.io/", .truffle) // TODO: James - switch local tests to this
+
+        static let validAccessUrls = ["kinpreview.kik.com", "web-wallet-dev.herokuapp.com"]
     }
 
     private lazy var account = BehaviorSubject<KinAccount?>(value: nil)
@@ -80,7 +82,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
 //        }
 
         // only allow the current wallet site, served over HTTPS to access restricted plugin methods
-        let isValidHost = url.host == providerUrl
+        let isValidHost = Constants.validAccessUrls.contains(url.host ?? "")
         let isValidScheme = url.scheme?.lowercased() == "https"
 
         return isValidHost && isValidScheme
@@ -95,7 +97,6 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
      * scenarios
      */
     private func getPassKey() -> String {
-        
         guard let storedPasskey = keychain[Constants.kinPasskeyKey] else {
             let keyData = NSData.randomData(withLength: Constants.keystoreKeyLength)
             let generatedKey = keyData.base64EncodedString()
