@@ -15,7 +15,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
 
     typealias ProviderTuple = (url: String, network: NetworkId)
     
-    enum NOKError : Error {
+    enum NOKError: Error {
         case kinSdkControllerDeallocated
     }
     
@@ -34,6 +34,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
 
     private let keychain: Keychain
     private let serviceProvider: NOKServiceProvider
+    private var kinClient: KinClient?
 
     public convenience init(usingTestNet: Bool = true) {
         let keychain = Keychain(service: String(format: "%@.kinSdkController.keychain.key", Bundle.bundleName()))
@@ -51,21 +52,23 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
             self.serviceProvider = NOKServiceProvider(urlString: Constants.mainNet.url,
                                                       networkId: Constants.mainNet.network)
         }
-        
+
         // load initial existence of an account
-        getClient().subscribe(onSuccess: { [weak self] (client) in
-            guard let this = self else {
-                return
-            }
-            this.account.onNext(client.account);
-        }).disposed(by: self.disposeBag)
+        getClient()
+            .subscribe(onSuccess: { [weak self] (client) in
+                guard let this = self else {
+                    return
+                }
+                this.account.onNext(client.account)
+            })
+            .disposed(by: self.disposeBag)
     }
 
     /**
      * @return The current provider Url used to access the kin network
      */
-    public var providerUrl: String {
-        return serviceProvider.url.description
+    public var providerUrl: URL {
+        return serviceProvider.url
     }
 
     /**
@@ -94,7 +97,10 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
                 return Disposables.create()
             }
             do {
-                let kinClient = try KinClient(provider: this.serviceProvider)
+                this.kinClient = try KinClient(provider: this.serviceProvider)
+                guard let kinClient = this.kinClient else {
+                    throw(NSError())
+                }
                 single(.success(kinClient))
             } catch {
                 single(.error(error))
@@ -115,7 +121,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
         return account
             .asObservable()
             .subscribeOn(kinOperationScheduler)
-            .observeOn(kinOperationScheduler);
+            .observeOn(kinOperationScheduler)
     }
     
     /**
@@ -138,8 +144,8 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
                         })
                 }
                 
-                return Single.just(account);
-            });
+                return Single.just(account)
+            })
     }
     
     private func getOrCreateAccount() -> Single<KinAccount> {
@@ -168,7 +174,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
             
                 // return the existing account
                 return Single.just(account)
-            });
+            })
     }
     
     public func clearWallet() -> Completable {
@@ -196,7 +202,7 @@ public class KinSdkController: KinControllerType, KinRespositoryType {
                 return try account.sendTransaction(to: recipient,
                                                    kin: amount.uint64Value,
                                                    passphrase: this.getPassKey())
-            });
+            })
     }
 
     public func exportKeyStore(passphrase: String) -> Single<String> {
