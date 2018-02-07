@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'NextOfKin'
-  s.version          = '0.1.0'
+  s.version          = '0.2.0'
   s.summary          = 'Helpful additions to the official kin-ios-core-sdk'
   s.description      = <<-DESC
                        NextOfKin is an RxSwift interface to access the official kin-sdk-core-ios ( https://github.com/kinfoundation/kin-sdk-core-ios )
