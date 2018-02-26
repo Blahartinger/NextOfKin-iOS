@@ -5,6 +5,8 @@
 [![License](https://img.shields.io/cocoapods/l/NextOfKin.svg?style=flat)](http://cocoapods.org/pods/NextOfKin)
 [![Platform](https://img.shields.io/cocoapods/p/NextOfKin.svg?style=flat)](http://cocoapods.org/pods/NextOfKin)
 
+A set of Rx-Swift bindings for the KinSDK.
+
 ## Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
